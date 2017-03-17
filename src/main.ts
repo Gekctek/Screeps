@@ -1,7 +1,8 @@
-import * as CreepManager from "./components/creeps/creepManager";
 import * as Config from "./config/config";
 
 import { log } from "./components/support/log";
+
+import { assigner } from "./components/assignments/assigner";
 
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
@@ -10,7 +11,7 @@ import { log } from "./components/support/log";
 
 // This is an example for using a config variable from `config.ts`.
 if (Config.USE_PATHFINDER) {
-  PathFinder.use(true);
+	PathFinder.use(true);
 }
 
 log.info("load");
@@ -24,26 +25,90 @@ log.info("load");
  * @export
  */
 export function loop() {
-  // Check memory for null or out of bounds custom objects
-  if (!Memory.uuid || Memory.uuid > 100) {
-    Memory.uuid = 0;
-  }
 
-  for (let i in Game.rooms) {
-    let room: Room = Game.rooms[i];
+	if (!Memory.assignments) {
+		Memory.assignments = {};
+	}
+	for (var i in Game.rooms) {
+		let room: Room = Game.rooms[i];
+		//check for enemies/assign them
+		var hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+		if (hostileCreeps.length > 0) {
+			notifier.notify("ENEMIES!!!!!");
+		}
 
-    CreepManager.run(room);
 
-    // Clears any non-existing creep memory.
-    for (let name in Memory.creeps) {
-      let creep: any = Memory.creeps[name];
 
-      if (creep.room === room.name) {
-        if (!Game.creeps[name]) {
-          log.info("Clearing non-existing creep memory:", name);
-          delete Memory.creeps[name];
-        }
-      }
-    }
-  }
+		try {
+			//unassign idle creeps, update assignment every .run(), if no run, kill
+			assigner.assignFillSpawn(room);
+
+			assigner.assignBrokenStructures(room);
+
+			//TODO
+			assigner.assignDroppedItems(room);
+
+
+			assigner.assignByRole(room);
+			assigner.assignIdle(room);
+
+		} catch (error) {
+			notifier.notify("Error when assigning: " + error + " " + error.stack)
+		}
+
+
+
+
+		try {
+			executeAssignments(room);
+		} catch (error) {
+			notifier.notify("Error when executing assignments: " + error + " " + error.stack)
+		}
+
+
+
+		try {
+			//balance rooms?
+			spawner.run(room);
+
+			spawner.cleanupDead(room);
+		} catch (error) {
+			notifier.notify("Error when spawning: " + error + " " + error.stack)
+		}
+	}
+
+	// Clears any non-existing creep memory.
+	for (let name in Memory.creeps) {
+		let creep: any = Memory.creeps[name];
+
+		if (creep.room === room.name) {
+			if (!Game.creeps[name]) {
+				log.info("Clearing non-existing creep memory:", name);
+				delete Memory.creeps[name];
+			}
+		}
+	}
+}
+}
+
+
+var executeAssignments = function (room: Room) {
+	var assignments = assignmentService.getAll();
+	for (var id in assignments) {
+		var assignment = assignments[id];
+		var stillRunning;
+		try {
+			stillRunning = assignmentRunner.run(assignment);
+		} catch (error) {
+			notifier.notify(error);
+		}
+		if (!stillRunning) {
+			if (!!Memory.creeps[assignment.id] && !Memory.creeps[assignment.id].idle) {
+				Memory.creeps[assignment.id].idle = Game.time;
+			}
+			assignmentService.delete(assignment.id);
+		} else {
+			Memory.creeps[assignment.id].idle = null;
+		}
+	}
 }
