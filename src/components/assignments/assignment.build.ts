@@ -1,4 +1,5 @@
-class BuildAssignment extends TargetAssignment<ConstructionSite> {
+import {TargetAssignment,AssignmentType,AssignmentDetourType, AssignmentResult} from "./assignment"
+export class BuildAssignment extends TargetAssignment<ConstructionSite> {
 	public type: AssignmentType = AssignmentType.Build;
 
 	constructor(creep: Creep, target: ConstructionSite) {
@@ -18,5 +19,13 @@ class BuildAssignment extends TargetAssignment<ConstructionSite> {
 				default:
 					return AssignmentResult.fail("Bad build: " + repairResult);
 			}
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type
+		}
 	}
 }

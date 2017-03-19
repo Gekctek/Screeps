@@ -8,6 +8,8 @@ import {spawner} from "./components/spawner";
 
 import {assignmentService} from "./components/assignment_service"
 
+import {Assignment,AssignmentResult,AssignmentResultType} from "./components/assignments/assignment"
+
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
 // Use this bootstrap wisely. You can cache some of your stuff to save CPU.

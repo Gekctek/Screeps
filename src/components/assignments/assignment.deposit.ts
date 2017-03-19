@@ -1,4 +1,5 @@
-class DepositAssignment extends TargetAssignment<Structure | Creep> {
+import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+export class DepositAssignment extends TargetAssignment<Structure | Creep> {
 	public type: AssignmentType = AssignmentType.Deposit;
 	public resourceType: string;
 
@@ -11,4 +12,13 @@ class DepositAssignment extends TargetAssignment<Structure | Creep> {
 		return this.depositResource(this.target, this.resourceType);
 	}
 
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type,
+			resourceType: this.resourceType
+		}
+	}
 }

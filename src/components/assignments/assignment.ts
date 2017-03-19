@@ -1,4 +1,4 @@
-abstract class Assignment {
+export abstract class Assignment {
 	public readonly abstract type: AssignmentType;
 	public creep: Creep;
 
@@ -7,6 +7,8 @@ abstract class Assignment {
 	}
 
 	public abstract execute(): AssignmentResult;
+
+	public abstract serialize() : {creepId:string, type: AssignmentType};
 
 	protected move(target: RoomPosition | RoomObject): AssignmentResult {
 		var moveResult = this.creep.moveTo(target, {
@@ -93,7 +95,7 @@ abstract class Assignment {
 	}
 }
 
-abstract class TargetAssignment<T extends {pos: RoomPosition } | RoomPosition> extends Assignment {
+export abstract class TargetAssignment<T extends {pos: RoomPosition } | RoomPosition> extends Assignment {
 	public abstract type: AssignmentType;
 	public target: T;
 	constructor(creep: Creep, target: T) {
@@ -101,9 +103,11 @@ abstract class TargetAssignment<T extends {pos: RoomPosition } | RoomPosition> e
 		this.target = target;
 	}
 	public abstract execute() : AssignmentResult;
+
+	public abstract serialize() : {creepId:string, target: T, type: AssignmentType};
 }
 
-class AssignmentResult {
+export class AssignmentResult {
 	public state: AssignmentResultType;
 	public message: string | undefined;
 	public detour: AssignmentDetourType | undefined;
@@ -132,20 +136,20 @@ class AssignmentResult {
 	}
 }
 
-enum AssignmentResultType {
+export enum AssignmentResultType {
 	InProgress,
 	Success,
 	Fail,
 	Detour
 }
 
-enum AssignmentDetourType {
+export enum AssignmentDetourType {
 	FindOtherPath,
 	GetMoreResources,
 	FindOtherDeposit
 }
 
-enum AssignmentType {
+export enum AssignmentType {
 	Harvest,
 	ItemPickup,
 	GetResource,

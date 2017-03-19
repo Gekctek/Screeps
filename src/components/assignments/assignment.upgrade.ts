@@ -1,4 +1,5 @@
-class UpgradeAssignment extends TargetAssignment<Controller> {
+import {TargetAssignment,AssignmentType,AssignmentResult,AssignmentDetourType} from "./assignment"
+export class UpgradeAssignment extends TargetAssignment<Controller> {
 	public type: AssignmentType = AssignmentType.Upgrade;
 
 	constructor(creep: Creep, target: Controller) {
@@ -17,6 +18,14 @@ class UpgradeAssignment extends TargetAssignment<Controller> {
 				return this.move(this.target);
 			default:
 				return AssignmentResult.fail("Bad upgrade: " + upgradeResult);
+		}
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type
 		}
 	}
 }

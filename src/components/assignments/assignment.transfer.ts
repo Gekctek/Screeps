@@ -1,4 +1,5 @@
-class TransferAssignment extends TargetAssignment<Structure> {
+import {TargetAssignment,AssignmentType,AssignmentResult, AssignmentResultType} from "./assignment"
+export class TransferAssignment extends TargetAssignment<Structure> {
 	public type: AssignmentType = AssignmentType.Transfer;
 	public resourceType: string;
 	public resourceTarget: RoomObject | undefined;
@@ -24,5 +25,16 @@ class TransferAssignment extends TargetAssignment<Structure> {
 		}
 
 		return this.depositResource(this.target, this.resourceType);
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type,
+			resourceType: this.resourceType,
+			resourceTarget: this.resourceTarget,
+			gotResource: this.gotResource
+		}
 	}
 }

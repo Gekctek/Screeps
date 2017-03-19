@@ -1,4 +1,5 @@
-class HarvestAssignment extends TargetAssignment<Source | Mineral> {
+import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+export class HarvestAssignment extends TargetAssignment<Source | Mineral> {
 	public type: AssignmentType = AssignmentType.Harvest;
 	public isMineral: boolean;
 
@@ -21,6 +22,15 @@ class HarvestAssignment extends TargetAssignment<Source | Mineral> {
 				return this.move(this.target);
 			default:
 				return AssignmentResult.fail("Bad harvest: " + harvestResult);
+		}
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type,
+			isMineral: this.isMineral
 		}
 	}
 }

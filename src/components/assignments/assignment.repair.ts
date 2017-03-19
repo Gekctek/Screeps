@@ -1,4 +1,5 @@
-class RepairAssignment extends TargetAssignment<Structure> {
+import {TargetAssignment,AssignmentType,AssignmentDetourType,AssignmentResult} from "./assignment"
+export class RepairAssignment extends TargetAssignment<Structure> {
 	public type: AssignmentType = AssignmentType.Repair;
 
 	constructor(creep: Creep, target: Structure) {
@@ -21,6 +22,14 @@ class RepairAssignment extends TargetAssignment<Structure> {
 				return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 			default:
 				return AssignmentResult.fail("Bad repair: " + repairResult);
+		}
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type
 		}
 	}
 }

@@ -1,4 +1,5 @@
-class ItemPickupAssignment extends TargetAssignment<Resource> {
+import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+export class ItemPickupAssignment extends TargetAssignment<Resource> {
 
 	public type: AssignmentType = AssignmentType.ItemPickup;
 
@@ -17,6 +18,14 @@ class ItemPickupAssignment extends TargetAssignment<Resource> {
 				return AssignmentResult.success();
 			default:
 				return AssignmentResult.fail("Pickup result: " + pickupResult);
+		}
+	}
+
+	public serialize() {
+		return {
+			creepId: this.creep.id,
+			target: this.target,
+			type: this.type
 		}
 	}
 }

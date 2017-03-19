@@ -1,5 +1,6 @@
 import {assignmentService} from "./assignment_service"
 import {log} from "./support/log";
+import {AssignmentType} from "./assignments/assignment"
 
 
 class Finder {

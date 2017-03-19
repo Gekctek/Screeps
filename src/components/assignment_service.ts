@@ -1,4 +1,7 @@
 import {log} from "./support/log";
+import {AssignmentType,Assignment} from "./assignments/assignment"
+import {BuildAssignment} from "./assignments/assignment.build"
+import {HarvestAssignment} from "./assignments/assignment.harvest"
 
 
 class AssignmentService {
@@ -12,7 +15,28 @@ class AssignmentService {
 	}
 
 	public getAll() : Assignment[] {
-		return Memory.assignments;
+		let assignments:Assignment[] = [];
+		for(var i in Memory.assignments) {
+			let a = Memory.assignments[i];
+			let assignment: Assignment;
+			switch(a.type) {
+				case AssignmentType.Build:
+				{
+					assignment = new BuildAssignment(a.creep, a.target);
+					break;
+				}
+				case AssignmentType.Harvest:
+				{
+					assignment = new HarvestAssignment(a.creep, a.target);
+					break;
+				}
+				default:
+					//TODO
+					continue;
+			}
+			assignments.push(assignment)
+		}
+		return assignments;
 	}
 
 	public isTargetAssigned(target: {id: string}, type?: AssignmentType) : boolean {

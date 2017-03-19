@@ -1,6 +1,16 @@
 import { assignmentService } from "./assignment_service";
 import { finder } from "./finder";
 import { log } from "./support/log";
+import {AssignmentType,Assignment} from "./assignments/assignment"
+import {MoveAssignment} from "./assignments/assignment.move"
+import {HarvestAssignment} from "./assignments/assignment.harvest"
+import {BuildAssignment} from "./assignments/assignment.build"
+import {DepositAssignment} from "./assignments/assignment.deposit"
+import {ItemPickupAssignment} from "./assignments/assignment.pickup"
+import {RepairAssignment} from "./assignments/assignment.repair"
+import {GetResourceAssignment} from "./assignments/assignment.resource"
+import {TransferAssignment} from "./assignments/assignment.transfer"
+import {UpgradeAssignment} from "./assignments/assignment.upgrade"
 
 
 class Assigner {
@@ -92,7 +102,6 @@ class Assigner {
 		//TODO
 		//Get closest to spawn first
 		_.sortBy(brokenItems, [function (bi: Structure) { return bi.pos.getRangeTo(spawn) }]);
-		console.log(AssignmentType.Repair)
 		let creeps: Creep[] = finder.findCreepsForAssignment(room, AssignmentType.Repair);
 		for (var i in brokenItems) {
 			//leave 2 to build? TODO
