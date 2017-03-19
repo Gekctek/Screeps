@@ -1,6 +1,5 @@
-import { notifier } from "./support/notifier";
+import { log } from "./support/log";
 
-export var spawner = new Spawner();
 
 class Spawner {
 
@@ -42,7 +41,7 @@ class Spawner {
 					bodySize--;
 					continue;
 				}
-				notifier.notify("Spawn '" + spawn.name + "' had error when spawning: " + newName)
+				log.error("Spawn '" + spawn.name + "' had error when spawning: " + newName)
 				return false;
 			}
 			return false;
@@ -75,3 +74,5 @@ class Spawner {
 		}
 	}
 }
+
+export var spawner = new Spawner();

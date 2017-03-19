@@ -4,8 +4,6 @@ import { log } from "./components/support/log";
 
 import { assigner } from "./components/assigner";
 
-import {notifier} from "./components/support/notifier";
-
 import {spawner} from "./components/spawner";
 
 import {assignmentService} from "./components/assignment_service"
@@ -40,7 +38,7 @@ export function loop() {
 		//check for enemies/assign them
 		var hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
 		if (hostileCreeps.length > 0) {
-			notifier.notify("ENEMIES!!!!!");
+			log.warning("ENEMIES!!!!!");
 		}
 
 
@@ -59,7 +57,7 @@ export function loop() {
 			assigner.assignIdle(room);
 
 		} catch (error) {
-			notifier.notify("Error when assigning: " + error + " " + error.stack)
+			log.error("Error when assigning: " + error + " " + error.stack)
 		}
 
 
@@ -72,13 +70,13 @@ export function loop() {
 			spawner.run(room);
 
 		} catch (error) {
-			notifier.notify("Error when spawning: " + error + " " + error.stack)
+			log.error("Error when spawning: " + error + " " + error.stack)
 		}
 	}
 		try {
 			executeAssignments();
 		} catch (error) {
-			notifier.notify("Error when executing assignments: " + error + " " + error.stack)
+			log.error("Error when executing assignments: " + error + " " + error.stack)
 		}
 
 
@@ -94,7 +92,7 @@ var executeAssignments = function() : void {
 		try {
 			assignmentResult = assignment.execute();
 		} catch (error) {
-			notifier.notify(error);
+			log.error(error);
 			return;
 		}
 		let deleteAssignment: boolean;
@@ -104,6 +102,7 @@ var executeAssignments = function() : void {
 				break;
 			case AssignmentResultType.Fail:
 				deleteAssignment = true;
+				log.error("Assignment failed: " + assignmentResult.message);
 				break;
 			case AssignmentResultType.InProgress:
 				deleteAssignment = false;
@@ -115,7 +114,7 @@ var executeAssignments = function() : void {
 				break;
 			default:
 				deleteAssignment = true;
-				notifier.notify("Non implemented assignment state.");
+				log.error("Non implemented assignment state.");
 				break;
 		}
 		if (!deleteAssignment) {

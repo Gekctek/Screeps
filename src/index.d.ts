@@ -10,3 +10,4 @@ interface Global {
 }
 
 declare var global: Global;
+

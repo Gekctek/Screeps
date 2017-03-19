@@ -54,7 +54,7 @@ abstract class Assignment {
 					return this.move(target);
 				case ERR_NOT_ENOUGH_ENERGY:
 					//TODO how will it know what to do after it gets more
-					return AssignmentResult.detour(AssignmentDetourType.GetMoreResource);
+					return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 				default:
 					return AssignmentResult.fail("Get energy result (withdraw): " + getResult);
 			}
@@ -132,20 +132,20 @@ class AssignmentResult {
 	}
 }
 
-declare enum AssignmentResultType {
+enum AssignmentResultType {
 	InProgress,
 	Success,
 	Fail,
 	Detour
 }
 
-declare enum AssignmentDetourType {
+enum AssignmentDetourType {
 	FindOtherPath,
-	GetMoreResource,
+	GetMoreResources,
 	FindOtherDeposit
 }
 
-declare enum AssignmentType {
+enum AssignmentType {
 	Harvest,
 	ItemPickup,
 	GetResource,
@@ -156,3 +156,4 @@ declare enum AssignmentType {
 	Transfer,
 	Move
 }
+

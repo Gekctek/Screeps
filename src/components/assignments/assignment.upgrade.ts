@@ -1,4 +1,4 @@
-class UpgradeAssignment extends Assignment {
+class UpgradeAssignment extends TargetAssignment<Controller> {
 	public type: AssignmentType = AssignmentType.Upgrade;
 
 	constructor(creep: Creep, target: Controller) {
@@ -7,20 +7,16 @@ class UpgradeAssignment extends Assignment {
 
 	public execute() : AssignmentResult {
 		if (!this.creep.carry.energy || this.creep.carry.energy <= 0) {
-			return AssignmentResult.;
+			return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 		}
 		var upgradeResult = this.creep.upgradeController(<Controller>this.target);
 		switch (upgradeResult) {
 			case OK:
-				return true;
+				return AssignmentResult.success();
 			case ERR_NOT_IN_RANGE:
-				//Keep moving
-				break;
+				return this.move(this.target);
 			default:
-				notifier.badAction("Bad upgrade: " + upgradeResult, creep, target, assignment);
-				return false;
+				return AssignmentResult.fail("Bad upgrade: " + upgradeResult);
 		}
-
-		return moveToTarget(creep, target);
 	}
 }

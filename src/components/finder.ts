@@ -1,10 +1,9 @@
-var assignmentService = require('assignment_service');
-import {notifier} from "./support/notifier";
+import {assignmentService} from "./assignment_service"
+import {log} from "./support/log";
 
-export var finder = new Finder();
 
 class Finder {
-	private filterIncludes<T>(value: T, filterValues: T[]) : boolean {
+	private static filterIncludes<T>(value: T, filterValues: T[]) : boolean {
 		if(!!filterValues) {
 			if(_.isArray(filterValues)) {
 				if(!_.includes(filterValues, value)) {
@@ -36,7 +35,7 @@ class Finder {
 			case AssignmentType.Repair:
 				return _.filter(creeps, c => c.memory.role == 'BUILDER' && !!c.carry.energy && c.carry.energy > 100);
 			default:
-				notifier.notify("Get best creep is not implemented for: " + assignmentType);
+				log.error("Get best creep is not implemented for: " + assignmentType);
 				return [];
 		}
 	}
@@ -59,7 +58,7 @@ class Finder {
 					return false;
 				}
 				//TODO change to weight or calculate
-				return !assignmentService.isTargetAssigned(s, 'GET_ENERGY');
+				return !assignmentService.isTargetAssigned(s, AssignmentType.GetResource);
 		}});
 
 		if(!!target) {
@@ -91,10 +90,10 @@ class Finder {
 	public findDeposits(room: Room, type: string, filter?: DepositFilter) : Structure[] {
 		var deposit = room.find<Structure>(FIND_STRUCTURES, {filter: (s: Structure) => {
 			if(!!filter) {
-				if(!!filter.structureTypes && !this.filterIncludes(s.structureType, filter.structureTypes)) {
+				if(!!filter.structureTypes && !Finder.filterIncludes(s.structureType, filter.structureTypes)) {
 					return false;
 				}
-				if(!!filter.excludedTargets && !this.filterIncludes(s.id, filter.excludedTargets)) {
+				if(!!filter.excludedTargets && !Finder.filterIncludes(s.id, filter.excludedTargets)) {
 					return false;
 				}
 			}
@@ -127,7 +126,7 @@ class Finder {
 		let creeps = room.find<Creep>(FIND_MY_CREEPS);
 		return _.filter(creeps, function(c) {
 			if(!!filter) {
-				if(!!filter.roles && !this.filterIncludes(c.memory.role, filter.roles)){
+				if(!!filter.roles && !Finder.filterIncludes(c.memory.role, filter.roles)){
 					return false;
 				}
 			}
@@ -135,6 +134,7 @@ class Finder {
 		});
 	}
 }
+export var finder = new Finder();
 
 class DepositFilter {
 	public structureTypes: string[] | undefined;

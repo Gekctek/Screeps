@@ -1,12 +1,11 @@
-import {notifier} from "./support/notifier";
+import {log} from "./support/log";
 
-export var assignmentService = new AssignmentService();
 
 class AssignmentService {
 	public addAssignment(assignment: Assignment){
 		let id: string = assignment.creep.name;
 		if(!!Memory.assignments[id]) {
-			notifier.notify("Assignment '"+assignment.creep+"' already exists, overriding. BEFORE: " + Memory.assignments[id].type + " - AFTER: " + assignment.type)
+			log.warning("Assignment '"+assignment.creep+"' already exists, overriding. BEFORE: " + Memory.assignments[id].type + " - AFTER: " + assignment.type)
 		}
 		// TODO serialize?
 		Memory.assignments[assignment.creep.name] = assignment;
@@ -51,3 +50,5 @@ class AssignmentService {
 		delete Memory.assignments[id];
 	}
 }
+
+export var assignmentService = new AssignmentService();

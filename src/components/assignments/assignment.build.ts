@@ -14,7 +14,7 @@ class BuildAssignment extends TargetAssignment<ConstructionSite> {
 				case ERR_NOT_IN_RANGE:
 					return this.move(this.target);
 				case ERR_NOT_ENOUGH_RESOURCES:
-					return AssignmentResult.detour(AssignmentDetourType.GetMoreResource);
+					return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 				default:
 					return AssignmentResult.fail("Bad build: " + repairResult);
 			}
