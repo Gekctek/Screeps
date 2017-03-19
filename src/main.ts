@@ -2,7 +2,13 @@ import * as Config from "./config/config";
 
 import { log } from "./components/support/log";
 
-import { assigner } from "./components/assignments/assigner";
+import { assigner } from "./components/assigner";
+
+import {notifier} from "./components/support/notifier";
+
+import {spawner} from "./components/spawner";
+
+import {assignmentService} from "./components/assignment_service"
 
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
@@ -59,56 +65,64 @@ export function loop() {
 
 
 
-		try {
-			executeAssignments(room);
-		} catch (error) {
-			notifier.notify("Error when executing assignments: " + error + " " + error.stack)
-		}
-
 
 
 		try {
 			//balance rooms?
 			spawner.run(room);
 
-			spawner.cleanupDead(room);
 		} catch (error) {
 			notifier.notify("Error when spawning: " + error + " " + error.stack)
 		}
 	}
-
-	// Clears any non-existing creep memory.
-	for (let name in Memory.creeps) {
-		let creep: any = Memory.creeps[name];
-
-		if (creep.room === room.name) {
-			if (!Game.creeps[name]) {
-				log.info("Clearing non-existing creep memory:", name);
-				delete Memory.creeps[name];
-			}
-		}
-	}
-}
-}
-
-
-var executeAssignments = function (room: Room) {
-	var assignments = assignmentService.getAll();
-	for (var id in assignments) {
-		var assignment = assignments[id];
-		var stillRunning;
 		try {
-			stillRunning = assignmentRunner.run(assignment);
+			executeAssignments();
+		} catch (error) {
+			notifier.notify("Error when executing assignments: " + error + " " + error.stack)
+		}
+
+
+	spawner.cleanupDead();
+}
+
+
+var executeAssignments = function() : void {
+	let assignments: Assignment[] = assignmentService.getAll();
+	for (let id in assignments) {
+		let assignment: Assignment = assignments[id];
+		let assignmentResult: AssignmentResult;
+		try {
+			assignmentResult = assignment.execute();
 		} catch (error) {
 			notifier.notify(error);
+			return;
 		}
-		if (!stillRunning) {
-			if (!!Memory.creeps[assignment.id] && !Memory.creeps[assignment.id].idle) {
-				Memory.creeps[assignment.id].idle = Game.time;
-			}
-			assignmentService.delete(assignment.id);
+		let deleteAssignment: boolean;
+		switch(assignmentResult.state) {
+			case AssignmentResultType.Success:
+				deleteAssignment = true;
+				break;
+			case AssignmentResultType.Fail:
+				deleteAssignment = true;
+				break;
+			case AssignmentResultType.InProgress:
+				deleteAssignment = false;
+				break;
+			case AssignmentResultType.Detour:
+				//TODO
+				console.log("Detour");
+				deleteAssignment = false;
+				break;
+			default:
+				deleteAssignment = true;
+				notifier.notify("Non implemented assignment state.");
+				break;
+		}
+		if (!deleteAssignment) {
+			//TODO set idle stuff
+			assignmentService.delete(assignment.creep.name);
 		} else {
-			Memory.creeps[assignment.id].idle = null;
+			//TODO reset idle stuff
 		}
 	}
 }
