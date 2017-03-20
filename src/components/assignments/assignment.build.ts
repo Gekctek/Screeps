@@ -1,4 +1,6 @@
-import {TargetAssignment,AssignmentType,AssignmentDetourType, AssignmentResult} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentDetourType,AssignmentResult,Assignment} from "./assignment"
+
+
 export class BuildAssignment extends TargetAssignment<ConstructionSite> {
 	public type: AssignmentType = AssignmentType.Build;
 
@@ -7,25 +9,30 @@ export class BuildAssignment extends TargetAssignment<ConstructionSite> {
 	}
 
 	public execute() : AssignmentResult {
-
-			var repairResult = this.creep.build(this.target);
-			switch (repairResult) {
+			let buildResult = this.creep.build(this.target);
+			switch (buildResult) {
 				case OK:
-					return AssignmentResult.success();
+					return AssignmentResult.inProgress();
 				case ERR_NOT_IN_RANGE:
 					return this.move(this.target);
 				case ERR_NOT_ENOUGH_RESOURCES:
 					return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 				default:
-					return AssignmentResult.fail("Bad build: " + repairResult);
+					return AssignmentResult.fail("Bad build: " + buildResult);
 			}
 	}
 
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type
+			targetId: this.target.id,
+			type: this.getStringType()
 		}
+	}
+
+	public static deserialize(assignment: any) : BuildAssignment {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<ConstructionSite>(assignment.targetId);
+		return new BuildAssignment(creep, target);
 	}
 }

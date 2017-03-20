@@ -23,7 +23,7 @@ class Assigner {
 			return;
 		}
 		for (var i in idleCreeps) {
-			assignmentService.addAssignment(new MoveAssignment(idleCreeps[i], target[0]));
+			assignmentService.addAssignment(new MoveAssignment(idleCreeps[i], target[0].pos));
 		}
 	}
 
@@ -56,7 +56,7 @@ class Assigner {
 					log.warning("Could not find a closest creep for target " + target.pos + " out of: " + creepsString)
 					continue;
 				}
-				let energySource: RoomObject | undefined = undefined;
+				let energySource: {id:string} | undefined = undefined;
 				//TODO
 				if (!creep.carry.energy || creep.carry.energy <= 0) {
 					energySource = finder.findBestExcessEnergy(creep.pos);
@@ -65,7 +65,7 @@ class Assigner {
 						return;
 					}
 				}
-				assignmentService.addAssignment(new TransferAssignment(creep, target, RESOURCE_ENERGY, energySource));
+				assignmentService.addAssignment(new TransferAssignment(creep, target, RESOURCE_ENERGY, energySource, !energySource));
 				_.remove(creeps, creep)
 				if (creeps.length < 1) {
 					return;
@@ -159,8 +159,8 @@ class Assigner {
 						source = closeSources[0];
 					}
 					assignment = new HarvestAssignment(creep, source);
-					return;
 				}
+				break;
 			//for(var carryType in creep.carry) {
 			//var resource = creep.carry[carryType];
 			//if(resource > 0) {
@@ -183,7 +183,7 @@ class Assigner {
 			//}
 			//}
 			case "BUILDER":
-				if (!!creep.carry.energy && ((creep.carryCapacity - creep.carry.energy) < 100 || creep.carry.energy >= 150)) {
+				if (!!creep.carry.energy && (creep.carry.energy / creep.carryCapacity) > .75) {//  || creep.carry.energy >= 150? something like this?
 					let targets = finder.findConstructionSites(creep.room);
 					if (targets.length < 1) {
 						//TODO Fill up?

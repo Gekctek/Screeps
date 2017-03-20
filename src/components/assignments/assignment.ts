@@ -8,9 +8,9 @@ export abstract class Assignment {
 
 	public abstract execute(): AssignmentResult;
 
-	public abstract serialize() : {creepId:string, type: AssignmentType};
+	public abstract serialize() : {creepId:string, type: string};
 
-	protected move(target: RoomPosition | RoomObject): AssignmentResult {
+	protected move(target: RoomPosition | {pos: RoomPosition}): AssignmentResult {
 		var moveResult = this.creep.moveTo(target, {
 			reusePath: 5,
 			visualizePathStyle: {
@@ -32,7 +32,7 @@ export abstract class Assignment {
 		}
 	}
 
-	protected getResource(target: RoomObject | RoomPosition, resourceType: string): AssignmentResult {
+	protected getResource(target: {id:string} | RoomPosition, resourceType: string): AssignmentResult {
 		if (target instanceof Structure) {
 			let getResult = this.creep.withdraw(target, resourceType);
 			switch (getResult) {
@@ -72,7 +72,7 @@ export abstract class Assignment {
 					return AssignmentResult.fail("Get energy result (pickup): " + getResult);
 			}
 		} else {
-			return AssignmentResult.fail("Non implemented get resource action for target.")
+			return AssignmentResult.fail("Non implemented get resource action for target: " + JSON.stringify(target))
 		}
 
 	}
@@ -93,9 +93,22 @@ export abstract class Assignment {
 				return AssignmentResult.fail("Deposit result: " + transferResult);
 		}
 	}
+
+	public getStringType() : string {
+		return (<any>AssignmentType)[this.type];
+	}
+
+
+	protected static findById<T>(id: string) : T {
+		var item = Game.getObjectById<T>(id);
+		if(item === null) {
+			throw new Error("Cound not find the item with id: " + id);
+		}
+		return item;
+	}
 }
 
-export abstract class TargetAssignment<T extends {pos: RoomPosition } | RoomPosition> extends Assignment {
+export abstract class TargetAssignment<T extends {id: string}> extends Assignment {
 	public abstract type: AssignmentType;
 	public target: T;
 	constructor(creep: Creep, target: T) {
@@ -104,7 +117,7 @@ export abstract class TargetAssignment<T extends {pos: RoomPosition } | RoomPosi
 	}
 	public abstract execute() : AssignmentResult;
 
-	public abstract serialize() : {creepId:string, target: T, type: AssignmentType};
+	public abstract serialize() : {creepId:string, targetId: string, type: string};
 }
 
 export class AssignmentResult {

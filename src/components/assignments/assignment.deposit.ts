@@ -1,4 +1,5 @@
-import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentResult,Assignment} from "./assignment"
+
 export class DepositAssignment extends TargetAssignment<Structure | Creep> {
 	public type: AssignmentType = AssignmentType.Deposit;
 	public resourceType: string;
@@ -16,9 +17,15 @@ export class DepositAssignment extends TargetAssignment<Structure | Creep> {
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type,
+			targetId: this.target.id,
+			type: this.getStringType(),
 			resourceType: this.resourceType
 		}
+	}
+
+	public static deserialize(assignment: any) : DepositAssignment {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Structure | Creep>(assignment.targetId);
+		return new DepositAssignment(creep, target, assignment.resourceType);
 	}
 }

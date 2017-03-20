@@ -1,4 +1,5 @@
-import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentResult,Assignment} from "./assignment"
+
 export class ItemPickupAssignment extends TargetAssignment<Resource> {
 
 	public type: AssignmentType = AssignmentType.ItemPickup;
@@ -24,8 +25,14 @@ export class ItemPickupAssignment extends TargetAssignment<Resource> {
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type
+			targetId: this.target.id,
+			type: this.getStringType()
 		}
+	}
+
+	public static deserialize(assignment: any) {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Resource>(assignment.targetId);
+		return new ItemPickupAssignment(creep, target);
 	}
 }

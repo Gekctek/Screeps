@@ -1,4 +1,5 @@
-import {TargetAssignment,AssignmentType,AssignmentResult,AssignmentDetourType} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentResult,AssignmentDetourType,Assignment} from "./assignment"
+
 export class UpgradeAssignment extends TargetAssignment<Controller> {
 	public type: AssignmentType = AssignmentType.Upgrade;
 
@@ -24,8 +25,14 @@ export class UpgradeAssignment extends TargetAssignment<Controller> {
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type
+			targetId: this.target.id,
+			type: this.getStringType()
 		}
+	}
+
+	public static deserialize(assignment: any) {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Controller>(assignment.targetId);
+		return new UpgradeAssignment(creep, target);
 	}
 }

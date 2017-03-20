@@ -1,4 +1,5 @@
-import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentResult,Assignment} from "./assignment"
+
 export class HarvestAssignment extends TargetAssignment<Source | Mineral> {
 	public type: AssignmentType = AssignmentType.Harvest;
 	public isMineral: boolean;
@@ -28,9 +29,15 @@ export class HarvestAssignment extends TargetAssignment<Source | Mineral> {
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type,
+			targetId: this.target.id,
+			type: this.getStringType(),
 			isMineral: this.isMineral
 		}
+	}
+
+	public static deserialize(assignment: any) {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Source | Mineral>(assignment.targetId);
+		return new HarvestAssignment(creep, target);
 	}
 }

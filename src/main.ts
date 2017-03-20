@@ -47,12 +47,13 @@ export function loop() {
 
 		try {
 			//unassign idle creeps, update assignment every .run(), if no run, kill
+
 			assigner.assignFillSpawn(room);
 
 			assigner.assignBrokenStructures(room);
 
-			//TODO
-			assigner.assignDroppedItems(room);
+			//TODO weird issue with getting game object by id
+			//assigner.assignDroppedItems(room);
 
 
 			assigner.assignByRole(room);
@@ -104,15 +105,14 @@ var executeAssignments = function() : void {
 				break;
 			case AssignmentResultType.Fail:
 				deleteAssignment = true;
-				log.error("Assignment failed: " + assignmentResult.message);
+				log.error("Assignment failed: " + assignmentResult.message + " - " + assignment.creep.name);
 				break;
 			case AssignmentResultType.InProgress:
 				deleteAssignment = false;
 				break;
 			case AssignmentResultType.Detour:
 				//TODO
-				console.log("Detour");
-				deleteAssignment = false;
+				deleteAssignment = true;
 				break;
 			default:
 				deleteAssignment = true;
@@ -121,9 +121,9 @@ var executeAssignments = function() : void {
 		}
 		if (!deleteAssignment) {
 			//TODO set idle stuff
-			assignmentService.delete(assignment.creep.name);
 		} else {
 			//TODO reset idle stuff
+			assignmentService.delete(assignment.creep.name);
 		}
 	}
 }

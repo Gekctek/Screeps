@@ -1,9 +1,10 @@
-import {TargetAssignment,AssignmentType,AssignmentResult} from "./assignment"
-export class GetResourceAssignment extends TargetAssignment<RoomObject> {
+import {TargetAssignment,AssignmentType,AssignmentResult,Assignment} from "./assignment"
+
+export class GetResourceAssignment extends TargetAssignment<{id:string}> {
 	public type: AssignmentType = AssignmentType.GetResource;
 	public resourceType: string;
 
-	constructor(creep: Creep, target: RoomObject, resourceType: string) {
+	constructor(creep: Creep, target: {id:string}, resourceType: string) {
 		super(creep, target);
 		this.resourceType = resourceType;
 	}
@@ -15,8 +16,14 @@ export class GetResourceAssignment extends TargetAssignment<RoomObject> {
 	public serialize() {
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type
+			targetId: this.target.id,
+			type: this.getStringType()
 		}
+	}
+
+	public static deserialize(assignment: any) {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<{id: string}>(assignment.targetId);
+		return new GetResourceAssignment(creep, target, assignment.resourceType);
 	}
 }

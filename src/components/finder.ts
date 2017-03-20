@@ -41,9 +41,9 @@ class Finder {
 		}
 	}
 
-	public findBestExcessEnergy(pos: RoomPosition) : RoomObject | undefined {
+	public findBestExcessEnergy(pos: RoomPosition) : {id:string} | undefined {
 		//TODO by path
-		let target:RoomObject | undefined = pos.findClosestByRange<Resource>(FIND_DROPPED_ENERGY);
+		let target: {id:string} | undefined = pos.findClosestByRange<Resource>(FIND_DROPPED_ENERGY);
 		if(!!target) {
 			return target;
 		}
@@ -65,13 +65,13 @@ class Finder {
 		if(!!target) {
 			return target;
 		}
-		return undefined;
+		//return undefined;
 		//TODO
 		// if(excludeSources) {
 		// 	return undefined;
 		// }
-		// let sources = this.findSources(Game.rooms[pos.roomName]);
-		// return this.findClosest(pos, sources);
+		let sources = this.findSources(Game.rooms[pos.roomName]);
+		return this.findClosest(pos, sources);
 	}
 
 
@@ -101,11 +101,11 @@ class Finder {
 			if(s instanceof StructureStorage || s instanceof StructureContainer) {
 				return _.sum(s.store) < s.storeCapacity;
 			}
-			if(s instanceof StructureSpawn || s instanceof StructureExtension || s instanceof StructureTower) {
+				//TODO tower
+			if(s instanceof StructureSpawn || s instanceof StructureExtension) {
 				if(type != RESOURCE_ENERGY) {
 					return false;
 				}
-				//TODO tower
 				return s.energy < s.energyCapacity;
 			}
 			return false;

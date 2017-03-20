@@ -1,21 +1,24 @@
-import {TargetAssignment,AssignmentType,AssignmentResult, AssignmentResultType} from "./assignment"
+import {TargetAssignment,AssignmentType,AssignmentResult,AssignmentResultType,Assignment} from "./assignment"
+
 export class TransferAssignment extends TargetAssignment<Structure> {
 	public type: AssignmentType = AssignmentType.Transfer;
 	public resourceType: string;
-	public resourceTarget: RoomObject | undefined;
+	public resourceTarget: {id:string} | undefined;
 	public gotResource: boolean;
 
-	constructor(creep: Creep, target: Structure, resourceType: string, resourceTarget: RoomObject | undefined) {
+	constructor(creep: Creep, target: Structure, resourceType: string, resourceTarget: {id:string} | undefined, gotResource: boolean) {
 		super(creep, target);
 		this.resourceType = resourceType;
 		this.resourceTarget = resourceTarget;
-		this.gotResource = !resourceTarget;
+		this.gotResource = gotResource;
 	}
 
 	public execute() : AssignmentResult {
-		let needsResource = !!this.resourceTarget && !this.gotResource;
-		if (needsResource) {
-			let result: AssignmentResult = this.getResource(this.target, this.resourceType);
+		if (!this.gotResource) {
+			if(!this.resourceTarget) {
+				return AssignmentResult.fail("Missing resource target for transfer.")
+			}
+			let result: AssignmentResult = this.getResource(this.resourceTarget, this.resourceType);
 			if(result.state == AssignmentResultType.Success) {
 				//TODO update assignment
 				this.gotResource = true;
@@ -28,13 +31,31 @@ export class TransferAssignment extends TargetAssignment<Structure> {
 	}
 
 	public serialize() {
+		let resourceT;
+		if(!this.resourceTarget) {
+			resourceT = undefined;
+		} else {
+			resourceT = this.resourceTarget.id;
+		}
 		return {
 			creepId: this.creep.id,
-			target: this.target,
-			type: this.type,
+			targetId: this.target.id,
+			type: this.getStringType(),
 			resourceType: this.resourceType,
-			resourceTarget: this.resourceTarget,
+			resourceTargetId: resourceT,
 			gotResource: this.gotResource
 		}
+	}
+
+	public static deserialize(assignment: any) : TransferAssignment {
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Structure>(assignment.targetId);
+		let resourceTarget;
+		if(!!assignment.resourceTargetId) {
+			resourceTarget = Assignment.findById<{id: string}>(assignment.resourceTargetId);
+		} else {
+			resourceTarget = undefined;
+		}
+		return new TransferAssignment(creep, target, assignment.resourceType, resourceTarget, assignment.gotResource);
 	}
 }
