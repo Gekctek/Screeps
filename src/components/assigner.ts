@@ -1,5 +1,5 @@
 import { assignmentService } from "./assignment_service";
-import { finder } from "./finder";
+import { finder, DepositFilter } from "./finder";
 import { log } from "./support/log";
 import {AssignmentType,Assignment} from "./assignments/assignment"
 import {MoveAssignment} from "./assignments/assignment.move"
@@ -39,14 +39,24 @@ class Assigner {
 		}
 	}
 
-	public assignFillSpawn(room: Room) {
+	public assignFillLowContainers(room: Room) {
 		//TODO
 		var creeps = finder.findIdleCreeps(room, { roles: ['RUNNER'] });
 		if (creeps.length < 1) {
 			return;
 		}
-		let structureTypes = { structureTypes: [STRUCTURE_SPAWN, STRUCTURE_EXTENSION], excludedTargets: undefined };
+		let structureTypes: DepositFilter = new DepositFilter([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
 		var emptySpawnDeposits = finder.findDeposits(room, RESOURCE_ENERGY, structureTypes);
+		if(emptySpawnDeposits.length < 1){
+			structureTypes = { structureTypes: undefined, excludedTargets: undefined,
+				customExp: (s:Structure) => {
+					if(s instanceof StructureContainer || s instanceof StructureStorage){
+						return (_.sum(s.store) / s.storeCapacity) > .5;
+					}
+					return false;
+				} };
+			emptySpawnDeposits = finder.findDeposits(room, RESOURCE_ENERGY, structureTypes);
+		}
 		for (var i in emptySpawnDeposits) {
 			var target = emptySpawnDeposits[i];
 			if (!assignmentService.isTargetAssigned(target, AssignmentType.Transfer)) {
@@ -242,7 +252,7 @@ class Assigner {
 					assignment = new DepositAssignment(creep, container, RESOURCE_ENERGY);
 				}
 				else {
-					let target = finder.findBestExcessEnergy(creep.pos);
+					let target = finder.findBestExcessEnergy(creep.pos, .5, true);
 					if (!target) {
 						return;
 					}

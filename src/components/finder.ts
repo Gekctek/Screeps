@@ -41,9 +41,11 @@ class Finder {
 		}
 	}
 
-	public findBestExcessEnergy(pos: RoomPosition, excludeSources?: boolean) : {id:string} | undefined {
+	public findBestExcessEnergy(pos: RoomPosition, minPercent?: number, excludeSources?: boolean) : {id:string} | undefined {
 		//TODO by path
-		let target: {id:string} | undefined = pos.findClosestByRange<Resource>(FIND_DROPPED_ENERGY);
+		let target: {id:string} | undefined = pos.findClosestByRange<Resource>(FIND_DROPPED_ENERGY, {
+			filter: (s: Structure) => !assignmentService.isTargetAssigned(s)
+		});
 		if(!!target) {
 			return target;
 		}
@@ -53,6 +55,9 @@ class Finder {
 				let hasStorage: boolean = false;
 				if(s instanceof StructureContainer || s instanceof StructureStorage) {
 					hasStorage = !!s.store && !!s.store.energy && s.store.energy > 0;
+					if(hasStorage && !!minPercent && (s.store.energy / s.storeCapacity) < minPercent) {
+						hasStorage = false;
+					}
 				}
 
 				if(!hasStorage) {
@@ -95,6 +100,9 @@ class Finder {
 				if(!!filter.excludedTargets && !Finder.filterIncludes(s.id, filter.excludedTargets)) {
 					return false;
 				}
+				if(!!filter.customExp && !filter.customExp(s)){
+					return false;
+				}
 			}
 			if(s instanceof StructureStorage || s instanceof StructureContainer) {
 				return _.sum(s.store) < s.storeCapacity;
@@ -135,9 +143,10 @@ class Finder {
 }
 export var finder = new Finder();
 
-class DepositFilter {
+export class DepositFilter {
 	public structureTypes: string[] | undefined;
 	public excludedTargets: string[] | undefined;
+	public customExp: (s: Structure) => boolean | undefined;
 
 	constructor(structureTypes?: string[], excludedTypes?: string[]) {
 		this.structureTypes = structureTypes;
@@ -145,7 +154,7 @@ class DepositFilter {
 	}
 }
 
-class CreepFilter {
+export class CreepFilter {
 	public roles: string[] | undefined;
 
 	constructor(roles?: string[]) {

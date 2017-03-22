@@ -104,7 +104,7 @@ class AssignmentService {
 				}
 			}
 		}
-		//console.log(assignmentCount + " " + type);
+
 		if(!!type && assignmentCount > 1) {
 			//check to see if the target allows more than one target
 			if(!!Memory.targets

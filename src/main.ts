@@ -60,7 +60,7 @@ export function loop() {
 				tower.repair(site)
 			}
 
-			assigner.assignFillSpawn(room);
+			assigner.assignFillLowContainers(room);
 
 			assigner.assignBrokenStructures(room);
 
