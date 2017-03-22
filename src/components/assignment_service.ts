@@ -99,11 +99,12 @@ class AssignmentService {
 				if(!type) {
 					return true;
 				}
-				if(assignment.type == type) {
+				if((<any>AssignmentType)[assignment.type] == type) {
 					assignmentCount++;
 				}
 			}
 		}
+		//console.log(assignmentCount + " " + type);
 		if(!!type && assignmentCount > 1) {
 			//check to see if the target allows more than one target
 			if(!!Memory.targets

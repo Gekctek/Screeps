@@ -35,8 +35,8 @@ export class RepairAssignment extends TargetAssignment<Structure> {
 	}
 
 	public static deserialize(assignment: any) {
-		let creep = Assignment.findById<Creep>(assignment);
-		let target = Assignment.findById<Structure>(assignment);
+		let creep = Assignment.findById<Creep>(assignment.creepId);
+		let target = Assignment.findById<Structure>(assignment.targetId);
 		return new RepairAssignment(creep, target);
 	}
 }

@@ -44,6 +44,8 @@ export abstract class Assignment {
 					return AssignmentResult.fail("Creep is trying to get energy from something when it has none.");
 				case ERR_FULL:
 					return AssignmentResult.fail("Creep is trying to get energy from something when the creep is full.");
+				case ERR_INVALID_ARGS:
+					return AssignmentResult.fail("Creep is withdrawing an invalid type or amount of resource. Type: " + resourceType);
 				default:
 					return AssignmentResult.fail("Get energy result (withdraw): " + getResult);
 			}
@@ -58,7 +60,7 @@ export abstract class Assignment {
 					//TODO how will it know what to do after it gets more
 					return AssignmentResult.detour(AssignmentDetourType.GetMoreResources);
 				default:
-					return AssignmentResult.fail("Get energy result (withdraw): " + getResult);
+					return AssignmentResult.fail("Get energy result (harvest): " + getResult);
 			}
 		} else if (target instanceof Resource) {
 			let getResult = this.creep.pickup(target);
@@ -102,7 +104,7 @@ export abstract class Assignment {
 	protected static findById<T>(id: string) : T {
 		var item = Game.getObjectById<T>(id);
 		if(item === null) {
-			throw new Error("Cound not find the item with id: " + id);
+			throw new Error("Cound not find the item with id: " + JSON.stringify(id));
 		}
 		return item;
 	}

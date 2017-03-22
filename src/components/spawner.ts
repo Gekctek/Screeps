@@ -5,8 +5,9 @@ class Spawner {
 
 	private roles = [
 		{ name: 'HARVESTER', max: 2, body: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK] },
-		{ name: 'BUILDER', max: 4, body: [WORK, WORK, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY] },
-		{ name: 'UPGRADER', max: 1, body: [WORK, CARRY, CARRY, MOVE, CARRY, CARRY, CARRY, CARRY, WORK] }
+		{ name: 'BUILDER', max: 5, body: [WORK, WORK, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY] },
+		{ name: 'UPGRADER', max: 1, body: [WORK, CARRY, CARRY, MOVE, CARRY, CARRY, CARRY, CARRY, WORK] },
+		{ name: 'RUNNER', max: 3, body: [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE] }
 	];
 
 	private spawnCreep(spawn: Spawn) {
@@ -14,11 +15,13 @@ class Spawner {
 
 		var min;
 		var roleToSpawn;
+		let override = false;
 		for (var i in this.roles) {
 			var role = this.roles[i];
 			var creepsInRole = creepsRoleMap[role.name];
 			if (!creepsInRole) {
 				roleToSpawn = role;
+				override = true; //Need to spawn at least one
 				break;
 			}
 			if ((!min || creepsInRole.length < min) && creepsInRole.length < role.max) {
@@ -29,7 +32,7 @@ class Spawner {
 		if (!roleToSpawn) {
 			return false;
 		}
-		if (spawn.room.energyAvailable >= 300) {
+		if (override || spawn.room.energyCapacityAvailable <= spawn.room.energyAvailable) {
 			var bodySize = roleToSpawn.body.length;
 			while (bodySize > 3) {
 				var body = roleToSpawn.body.slice(0, bodySize);

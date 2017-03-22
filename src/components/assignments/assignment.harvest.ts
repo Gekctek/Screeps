@@ -21,6 +21,8 @@ export class HarvestAssignment extends TargetAssignment<Source | Mineral> {
 				}
 			case ERR_NOT_IN_RANGE:
 				return this.move(this.target);
+			case ERR_NOT_ENOUGH_ENERGY:
+				return AssignmentResult.fail("Harvest source is empty: " + this.target.id);
 			default:
 				return AssignmentResult.fail("Bad harvest: " + harvestResult);
 		}

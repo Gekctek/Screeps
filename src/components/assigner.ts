@@ -41,7 +41,7 @@ class Assigner {
 
 	public assignFillSpawn(room: Room) {
 		//TODO
-		var creeps = finder.findIdleCreeps(room, { roles: ['BUILDER', 'UPRGADER'] });
+		var creeps = finder.findIdleCreeps(room, { roles: ['RUNNER'] });
 		if (creeps.length < 1) {
 			return;
 		}
@@ -146,6 +146,7 @@ class Assigner {
 					if (closeSources.length < 1) {
 						var sources = finder.findSources(creep.room);
 						for (var i in sources) {
+							console.log(JSON.stringify(sources[i]))
 							if (!assignmentService.isTargetAssigned(sources[i], AssignmentType.Harvest)) {
 								source = sources[i];
 								break;
@@ -157,6 +158,11 @@ class Assigner {
 						}
 					} else {
 						source = closeSources[0];
+					}
+					if(source.energy <= 0)
+					{
+						//TODO do something else or just sit there?
+						return;
 					}
 					assignment = new HarvestAssignment(creep, source);
 				}
@@ -214,6 +220,28 @@ class Assigner {
 					}
 					assignment = new UpgradeAssignment(creep, target);
 				} else {
+					let target = finder.findBestExcessEnergy(creep.pos);
+					if (!target) {
+						return;
+					}
+					assignment = new GetResourceAssignment(creep, target, RESOURCE_ENERGY);
+				}
+				break;
+			case "RUNNER":
+				if (!!creep.carry.energy && creep.carry.energy > 0) {
+					let containers: Structure[] = finder.findDeposits(creep.room, RESOURCE_ENERGY);
+					if (containers.length < 1) {
+						log.warning("Runner has nothing to get.");
+						return;
+					}
+					let container: Structure | undefined = finder.findClosest(creep.pos, containers);
+					if (!container) {
+						log.warning("Container not found for depositing for a runner.");
+						return;
+					}
+					assignment = new DepositAssignment(creep, container, RESOURCE_ENERGY);
+				}
+				else {
 					let target = finder.findBestExcessEnergy(creep.pos);
 					if (!target) {
 						return;

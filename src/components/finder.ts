@@ -31,7 +31,7 @@ class Finder {
 			case AssignmentType.ItemPickup:
 				//TODO
 				return _.filter(creeps, function(c) {
-					return (c.carryCapacity - _.sum(c.carry)) >= 100;
+					return c.memory.role == "RUNNER" && (c.carryCapacity - _.sum(c.carry)) >= 100;
 				});
 			case AssignmentType.Repair:
 				return _.filter(creeps, c => c.memory.role == 'BUILDER' && !!c.carry.energy && c.carry.energy > 100);
@@ -41,7 +41,7 @@ class Finder {
 		}
 	}
 
-	public findBestExcessEnergy(pos: RoomPosition) : {id:string} | undefined {
+	public findBestExcessEnergy(pos: RoomPosition, excludeSources?: boolean) : {id:string} | undefined {
 		//TODO by path
 		let target: {id:string} | undefined = pos.findClosestByRange<Resource>(FIND_DROPPED_ENERGY);
 		if(!!target) {
@@ -65,11 +65,9 @@ class Finder {
 		if(!!target) {
 			return target;
 		}
-		//return undefined;
-		//TODO
-		// if(excludeSources) {
-		// 	return undefined;
-		// }
+		if(excludeSources) {
+			return undefined;
+		}
 		let sources = this.findSources(Game.rooms[pos.roomName]);
 		return this.findClosest(pos, sources);
 	}
@@ -102,7 +100,7 @@ class Finder {
 				return _.sum(s.store) < s.storeCapacity;
 			}
 				//TODO tower
-			if(s instanceof StructureSpawn || s instanceof StructureExtension) {
+			if(s instanceof StructureSpawn || s instanceof StructureExtension || s instanceof StructureTower) {
 				if(type != RESOURCE_ENERGY) {
 					return false;
 				}

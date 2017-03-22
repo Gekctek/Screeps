@@ -17,7 +17,8 @@ export class GetResourceAssignment extends TargetAssignment<{id:string}> {
 		return {
 			creepId: this.creep.id,
 			targetId: this.target.id,
-			type: this.getStringType()
+			type: this.getStringType(),
+			resourceType: this.resourceType
 		}
 	}
 

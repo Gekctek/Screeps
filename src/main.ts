@@ -10,6 +10,8 @@ import {assignmentService} from "./components/assignment_service"
 
 import {Assignment,AssignmentResult,AssignmentResultType} from "./components/assignments/assignment"
 
+import {finder} from "./components/finder"
+
 // Any code written outside the `loop()` method is executed only when the
 // Screeps system reloads your script.
 // Use this bootstrap wisely. You can cache some of your stuff to save CPU.
@@ -47,6 +49,16 @@ export function loop() {
 
 		try {
 			//unassign idle creeps, update assignment every .run(), if no run, kill
+			let towers = room.find<Tower>(FIND_STRUCTURES, {filter: (s: Structure) => s.structureType == STRUCTURE_TOWER});
+			let brokenItems: Structure[] = finder.findBrokenStructures(room);
+			for(let i in towers) {
+				let tower = towers[i];
+				var site = finder.findClosest(tower.pos, brokenItems);
+				if(!site){
+					return;
+				}
+				tower.repair(site)
+			}
 
 			assigner.assignFillSpawn(room);
 
@@ -105,7 +117,7 @@ var executeAssignments = function() : void {
 				break;
 			case AssignmentResultType.Fail:
 				deleteAssignment = true;
-				log.error("Assignment failed: " + assignmentResult.message + " - " + assignment.creep.name);
+				log.error("Assignment failed: " + assignmentResult.message + " - " + assignment.creep.name + " - " + JSON.stringify(assignment.serialize()));
 				break;
 			case AssignmentResultType.InProgress:
 				deleteAssignment = false;
