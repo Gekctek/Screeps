@@ -4,9 +4,9 @@ import { log } from "./support/log";
 class Spawner {
 
 	private roles = [
-		{ name: 'HARVESTER', max: 2, body: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK] },
-		{ name: 'BUILDER', max: 5, body: [WORK, WORK, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY] },
-		{ name: 'UPGRADER', max: 1, body: [WORK, CARRY, CARRY, MOVE, CARRY, CARRY, CARRY, CARRY, WORK] },
+		{ name: 'HARVESTER', max: 2, body: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK] },
+		{ name: 'BUILDER', max: 5, body: [WORK, WORK, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK] },
+		{ name: 'UPGRADER', max: 3, body: [WORK, CARRY, CARRY, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK] },
 		{ name: 'RUNNER', max: 3, body: [CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE] }
 	];
 

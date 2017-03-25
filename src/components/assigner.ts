@@ -15,18 +15,6 @@ import {UpgradeAssignment} from "./assignments/assignment.upgrade"
 
 class Assigner {
 
-	public assignIdle(room: Room) {
-		var idleCreeps = _.filter(room.find<Creep>(FIND_MY_CREEPS), c => (c.memory.idle - Game.time) > 1);
-		var target = room.find<Flag>(FIND_FLAGS, { filter: (t: Flag) => t.name == 'Idle' });
-		if (target.length < 1) {
-			log.warning('Idle is full')
-			return;
-		}
-		for (var i in idleCreeps) {
-			assignmentService.addAssignment(new MoveAssignment(idleCreeps[i], target[0].pos));
-		}
-	}
-
 	public assignByRole(room: Room) {
 		var creeps = finder.findIdleCreeps(room);
 		for (var name in creeps) {
@@ -51,11 +39,14 @@ class Assigner {
 			structureTypes = { structureTypes: undefined, excludedTargets: undefined,
 				customExp: (s:Structure) => {
 					if(s instanceof StructureContainer || s instanceof StructureStorage){
-						return (_.sum(s.store) / s.storeCapacity) > .5;
+						return (_.sum(s.store) / s.storeCapacity) < .5;
 					}
 					return false;
 				} };
 			emptySpawnDeposits = finder.findDeposits(room, RESOURCE_ENERGY, structureTypes);
+		}
+		if(emptySpawnDeposits.length < 1){
+			return;
 		}
 		for (var i in emptySpawnDeposits) {
 			var target = emptySpawnDeposits[i];
@@ -156,7 +147,6 @@ class Assigner {
 					if (closeSources.length < 1) {
 						var sources = finder.findSources(creep.room);
 						for (var i in sources) {
-							console.log(JSON.stringify(sources[i]))
 							if (!assignmentService.isTargetAssigned(sources[i], AssignmentType.Harvest)) {
 								source = sources[i];
 								break;
@@ -243,6 +233,10 @@ class Assigner {
 					if (containers.length < 1) {
 						log.warning("Runner has nothing to get.");
 						return;
+					}
+					let emptyContainers = _.filter(containers, (c: Structure) => (c instanceof StructureContainer || c instanceof StructureStorage) && _.sum(c.store) < 1);
+					if(emptyContainers.length > 0){
+						containers = emptyContainers;
 					}
 					let container: Structure | undefined = finder.findClosest(creep.pos, containers);
 					if (!container) {

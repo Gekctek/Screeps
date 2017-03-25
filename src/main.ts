@@ -69,7 +69,6 @@ export function loop() {
 
 
 			assigner.assignByRole(room);
-			assigner.assignIdle(room);
 
 		} catch (error) {
 			log.error("Error when assigning: " + error + " " + error.stack)

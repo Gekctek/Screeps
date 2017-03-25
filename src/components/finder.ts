@@ -50,7 +50,7 @@ class Finder {
 			return target;
 		}
 		//TODO by path
-		target = pos.findClosestByRange<Structure>(FIND_STRUCTURES, {
+		let targets = Game.rooms[pos.roomName].find<Structure>(FIND_STRUCTURES, {
 			filter: (s: Structure) => {
 				let hasStorage: boolean = false;
 				if(s instanceof StructureContainer || s instanceof StructureStorage) {
@@ -67,8 +67,10 @@ class Finder {
 				return !assignmentService.isTargetAssigned(s, AssignmentType.GetResource);
 		}});
 
-		if(!!target) {
-			return target;
+
+		if(targets.length > 0) {
+			_.sortBy(targets, [(t: any) => (t.store.energy / t.storeCapacity) + pos.getRangeTo(t) * .05]);
+			return targets[0];
 		}
 		if(excludeSources) {
 			return undefined;
@@ -125,7 +127,8 @@ class Finder {
 		return room.find<Resource>(FIND_DROPPED_ENERGY);
 	}
 	public findBrokenStructures(room: Room) : Structure[] {
-		return room.find<Structure>(FIND_STRUCTURES, { filter: (s: Structure) => s.hits <= (s.hitsMax / 3) });
+		//TODO figure out wall
+		return room.find<Structure>(FIND_STRUCTURES, { filter: (s: Structure) => !(s instanceof StructureWall) && s.hits <= (s.hitsMax / 3) });
 	}
 	///filter {roles}
 	public findIdleCreeps(room: Room, filter?: CreepFilter) : Creep[] {
